@@ -6,6 +6,7 @@ import { useStore } from 'vuex'
 import { key } from '@/vuex'
 import { login } from '@/models/auth'
 import { useQuasar } from 'quasar'
+import { Axios } from 'axios'
 
 export default defineComponent({
   name: 'CommentLayout',
@@ -18,10 +19,18 @@ export default defineComponent({
 
     onAuthStateChanged(firebaseAuth, async (user) => {
       if (user) {
-        const name = await login($q, user.uid, axios)
+        const token = await user.getIdTokenResult()
+
+        const name = await login($q, token.token, axios)
         if (name) {
           store.commit('login', { uid: user.uid, name })
         }
+
+        axios.get('/api/v1/products/1/comments', {
+          headers: {
+            Authorization: `Bearer ${token.token}`,
+          },
+        })
       } else {
         store.commit('logout')
       }
@@ -46,29 +55,23 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="row">
-    <div class="col-12">
-      <q-bar class="bg-black text-white">
-        <q-btn dense flat />
-        <div class="text-weight-bold">
-          App
-        </div>
-        <div class="cursor-pointer gt-md">File</div>
-        <div class="cursor-pointer gt-md">Edit</div>
-        <div class="cursor-pointer gt-md">View</div>
-        <div class="cursor-pointer gt-md">Window</div>
-        <div class="cursor-pointer gt-md">Help</div>
+  <q-layout view="hHh lpR fFf">
+    <q-header bordered class="bg-primary text-white">
+      <q-toolbar>
+        <q-toolbar-title>
+          <q-avatar>
+            <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg" />
+          </q-avatar>
+          Title
+        </q-toolbar-title>
         <q-space />
-        <q-btn dense flat icon="airplay" class="gt-xs" />
-        <q-btn dense flat icon="battery_charging_full" />
-        <q-btn dense flat icon="wifi" />
-        <div>9:41</div>
-        <q-btn dense flat icon="search" />
-        <q-btn dense flat icon="list" />
-      </q-bar>
-    </div>
-    <div class="col-12">
+        <span v-if="store.state.isLogin">@{{ store.state.name }}</span>
+        <q-btn v-if="store.state.isLogin" stretch flat label="ログアウト" @click="logout" />
+        <q-btn v-else stretch flat label="ログイン" @click="signIn" />
+      </q-toolbar>
+    </q-header>
+    <q-page-container>
       <router-view />
-    </div>
-  </div>
+    </q-page-container>
+  </q-layout>
 </template>

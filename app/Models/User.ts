@@ -29,9 +29,13 @@ export default class User extends BaseModel {
    */
   public static async getUser(
     firebaseUID: string,
-    trx: TransactionClientContract
+    trx?: TransactionClientContract
   ): Promise<User | null> {
-    const users = await User.query().useTransaction(trx).where('firebase_uid', firebaseUID)
+    const query = User.query().where('firebase_uid', firebaseUID)
+
+    if (trx) query.useTransaction(trx)
+
+    const users = await query
     return users[0]
   }
 

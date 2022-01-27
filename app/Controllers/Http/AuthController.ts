@@ -13,15 +13,17 @@ export default class AuthController {
       const validator = new LoginValidator()
       const payload = await ctx.request.validate(validator)
 
-      const isFirebaseUid = await AuthController.isExistFirebaseUser(payload.firebaseUID)
-      if (!isFirebaseUid) {
+      const firebaseUser = await AuthController.getFirebaseUser(payload.token)
+      if (!firebaseUser) {
         await trx.rollback()
         return ctx.response.badRequest()
       }
 
-      let user = await User.getUser(payload.firebaseUID, trx)
+      const uid = firebaseUser.uid
+
+      let user = await User.getUser(uid, trx)
       if (!user) {
-        user = await User.createUser(payload.firebaseUID, trx)
+        user = await User.createUser(uid, trx)
       }
 
       await trx.commit()
@@ -34,12 +36,12 @@ export default class AuthController {
     }
   }
 
-  private static async isExistFirebaseUser(uid: string) {
+  private static async getFirebaseUser(token: string) {
     try {
-      await Firebase.getApp().auth().getUser(uid)
-      return true
+      const decode = await Firebase.getApp().auth().verifyIdToken(token)
+      return await Firebase.getApp().auth().getUser(decode.uid)
     } catch (e) {
-      return false
+      return null
     }
   }
 }

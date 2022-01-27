@@ -1,9 +1,7 @@
 import { rules, schema } from '@ioc:Adonis/Core/Validator'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
-export default class LoginValidator {
-  constructor() {}
-
+export default class StoreCommentValidator {
   /*
    * Define schema to validate the "shape", "type", "formatting" and "integrity" of data.
    *
@@ -24,7 +22,8 @@ export default class LoginValidator {
    *    ```
    */
   public schema = schema.create({
-    token: schema.string({ trim: true }, [rules.required()]),
+    content: schema.string({ trim: true, escape: true }, [rules.required(), rules.maxLength(100)]),
+    time: schema.number([rules.required()]),
   })
 
   /**

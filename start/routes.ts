@@ -24,6 +24,11 @@ Route.group(() => {
   Route.post('login', 'AuthController.login')
 }).prefix('/api/v1')
 
+Route.group(() => {
+  Route.get('/products/:productId/comments', 'CommentController.index')
+  Route.post('/products/:productId/comments', 'CommentController.store')
+}).prefix('/api/v1').middleware(['firebaseAuth'])
+
 Route.get('*', async ({ view }) => {
   return view.render('welcome')
 })
