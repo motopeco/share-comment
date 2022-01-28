@@ -18,7 +18,9 @@ export default defineComponent({
 
     onAuthStateChanged(firebaseAuth, async (user) => {
       if (user) {
-        const name = await login($q, user.uid, axios)
+        const token = await user.getIdTokenResult()
+
+        const name = await login($q, token.token, axios)
         if (name) {
           store.commit('login', { uid: user.uid, name })
         }
