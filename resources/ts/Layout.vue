@@ -18,6 +18,7 @@ export default defineComponent({
 
     onAuthStateChanged(firebaseAuth, async (user) => {
       if (user) {
+        console.log(firebaseAuth.currentUser)
         const token = await user.getIdTokenResult()
 
         const name = await login($q, token.token, axios)

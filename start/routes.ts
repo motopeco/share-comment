@@ -22,10 +22,11 @@ import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(() => {
   Route.post('login', 'AuthController.login')
+  Route.get('/products', 'ProductController.index')
+  Route.get('/products/:productId/comments', 'CommentController.index')
 }).prefix('/api/v1')
 
 Route.group(() => {
-  Route.get('/products/:productId/comments', 'CommentController.index')
   Route.post('/products/:productId/comments', 'CommentController.store')
 }).prefix('/api/v1').middleware(['firebaseAuth'])
 
