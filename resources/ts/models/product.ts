@@ -22,3 +22,28 @@ export function getProducts($q: QVueGlobals, axios: Axios, rows: Ref<any[]>) {
     }
   }
 }
+//
+export function getProductData(
+  $q: QVueGlobals,
+  axios: Axios,
+  productId: number,
+  refComments: Ref<ProductComment[]>,
+  refTime: Ref<number>
+) {
+  return async function () {
+    try {
+      $q.loading.show()
+
+      const { data: product } = await axios.get(`/api/v1/products/${productId}`)
+      console.log(`/api/v1/products/${product.id}/comments`)
+      const { data: comments } = await axios.get(`/api/v1/products/${product.id}/comments`)
+
+      refTime.value = product.time
+      refComments.value = comments
+    } catch (e) {
+      console.log(e)
+    } finally {
+      $q.loading.hide()
+    }
+  }
+}

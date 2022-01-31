@@ -1,25 +1,25 @@
 <script lang="ts">
-import { defineComponent, inject, onMounted, ref, watch } from 'vue'
+import { defineComponent, inject, onBeforeMount, onMounted, ref, watch } from 'vue'
 import CommentBox from '@/components/CommentBox.vue'
 import { Axios } from 'axios'
-
-interface Comment {
-  i: number
-  content: string
-  time: number
-}
-
-const comments: Comment[] = []
+import { getProductData } from '@/models/product'
+import { useQuasar } from 'quasar'
+import { LocationQuery, LocationQueryValue, useRoute } from 'vue-router'
+import { number } from '@adonisjs/env/build/src/Schema/number'
 
 export default defineComponent({
   name: 'CommentPage',
   components: {
     CommentBox,
   },
-  setup() {
+  setup: function () {
+    const comments = ref<ProductComment[]>([])
+    const $q = useQuasar()
+    const axios: any = inject('axios')
+    const $route = useRoute()
     const isPlayed = ref(false)
     const time = ref(0)
-    const maxTime = 60 * 31
+    const maxTime = ref(0)
     const tmpHeight = ref(0)
     const boxHeight = ref('100vh')
     const myTweak = (offset, height) => {
@@ -98,6 +98,14 @@ export default defineComponent({
       return `${min}:${sec}`
     }
 
+    const query = $route.query as LocationQuery
+    const productId = query.productId as string
+    const productData = getProductData($q, axios, parseInt(productId), comments, maxTime)
+
+    onBeforeMount(async () => {
+      await productData()
+    })
+
     return {
       isPlayed,
       time,
@@ -118,7 +126,7 @@ export default defineComponent({
     <div class="col">
       <div id="comment-box" style="overflow-y: scroll" :style="{ height: boxHeight }">
         <Suspense>
-          <CommentBox></CommentBox>
+          <CommentBox />
         </Suspense>
         <q-list separator @mouseenter="stopScroll = true" @mouseleave="stopScroll = false">
           <q-item

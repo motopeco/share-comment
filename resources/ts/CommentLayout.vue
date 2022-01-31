@@ -25,12 +25,6 @@ export default defineComponent({
         if (name) {
           store.commit('login', { uid: user.uid, name })
         }
-
-        axios.get('/api/v1/products/1/comments', {
-          headers: {
-            Authorization: `Bearer ${token.token}`,
-          },
-        })
       } else {
         store.commit('logout')
       }

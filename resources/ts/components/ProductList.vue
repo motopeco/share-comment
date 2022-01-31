@@ -1,37 +1,72 @@
 <script lang="ts">
-import { defineComponent, inject, ref } from 'vue'
+import { defineComponent, inject, onBeforeMount, onMounted, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { getProducts } from '@/models/product'
-import { getAuth } from '@firebase/auth'
-import firebase from '@/plugins/firebase'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'ProductList',
   setup() {
+    const $router = useRouter()
     const $q = useQuasar()
     const axios: any = inject('axios')
     const rows = ref<any[]>([])
 
     const kana = 'あかさたなはまやらわ'.split('')
 
-    const firebaseAuth = getAuth(firebase.app)
-
     const products = getProducts($q, axios, rows)
 
-    // await products()
+    onBeforeMount(async () => {
+      await products()
+      console.log(rows.value)
+    })
+
+    const getTimerFormat = (value: number) => {
+      const min = ('0' + Math.floor(value / 60)).slice(-2)
+      const sec = ('0' + (value % 60)).slice(-2)
+
+      return `${min}:${sec}`
+    }
+
+    const moveToCommentPage = (row) => {
+      $router.push({
+        path: '/comments',
+        query: {
+          productId: row.id,
+        },
+      })
+    }
 
     return {
       rows,
       kana,
+      getTimerFormat,
+      moveToCommentPage,
     }
   },
 })
 </script>
 
 <template>
-  <q-list separator>
-    <q-item v-for="(kana, i) of kana" :key="i">
+  <q-list v-for="(kana, i) of kana" :key="i" separator>
+    <q-item>
       <q-item-section>{{ kana }}</q-item-section>
+    </q-item>
+    <q-item
+      v-for="row of rows.filter((row) => row.prefix === kana)"
+      :key="row.id"
+      v-ripple
+      clickable
+      @click="moveToCommentPage(row)"
+    >
+      <q-item-section>
+        <q-item-label>{{ row.name }}</q-item-label>
+        <q-item-label caption lines="2"> 再生時間: {{ getTimerFormat(row.time) }} </q-item-label>
+      </q-item-section>
+
+      <q-item-section side top>
+        <q-item-label caption> 最新のコメント投稿: {{ row.last_at }} </q-item-label>
+      </q-item-section>
     </q-item>
   </q-list>
 </template>

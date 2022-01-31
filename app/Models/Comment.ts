@@ -47,4 +47,8 @@ export default class Comment extends BaseModel {
 
     return comment
   }
+
+  public static async getByProductId(productId: number) {
+    return Comment.query().where('product_id', productId).orderBy('time')
+  }
 }

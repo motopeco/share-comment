@@ -3,13 +3,23 @@ import Database from '@ioc:Adonis/Lucid/Database'
 import StoreCommentValidator from 'App/Validators/StoreCommentValidator'
 import Product from 'App/Models/Product'
 import Comment from 'App/Models/Comment'
+import Logger from '@ioc:Adonis/Core/Logger'
 
 export default class CommentController {
   public async index(ctx: HttpContextContract) {
-    const { userId } = ctx.request.all()
-    console.log(userId)
+    try {
+      const productId = ctx.params.productId
+      const product = await Product.getProduct(productId)
+      if (!product) {
+        return ctx.response.notFound()
+      }
 
-    return ctx.response.send('ok')
+      const comments = await Comment.getByProductId(product.id)
+      return ctx.response.send(comments)
+    } catch (e) {
+      Logger.error(e.messages)
+      return ctx.response.badRequest()
+    }
   }
 
   public async store(ctx: HttpContextContract) {

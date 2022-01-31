@@ -17,4 +17,16 @@ export default class ProductController {
       return ctx.response.badRequest()
     }
   }
+
+  public async detail(ctx: HttpContextContract) {
+    try {
+      const id = ctx.params.productId
+      const product = await Product.getProduct(id)
+
+      return ctx.response.send(product)
+    } catch (e) {
+      Logger.error(e.messages)
+      return ctx.response.notFound()
+    }
+  }
 }
