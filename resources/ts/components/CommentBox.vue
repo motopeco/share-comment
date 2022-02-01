@@ -4,12 +4,12 @@ import { getComments } from '@/models/comment'
 import { useRoute } from 'vue-router'
 
 export default defineComponent({
-  async setup() {
+  setup() {
     try {
-      const axios: any = inject('axios')
-      const $route = useRoute()
-      const productId = parseInt($route.query.product_id as string)
-      await getComments(productId, axios)
+      // const axios: any = inject('axios')
+      // const $route = useRoute()
+      // const productId = parseInt($route.query.product_id as string)
+      // await getComments(productId, axios)
     } catch (e) {
       //
     }

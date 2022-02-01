@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, inject } from 'vue'
-import { getAuth, onAuthStateChanged, signInAnonymously, signOut } from '@firebase/auth'
+import { getAuth, onAuthStateChanged, onIdTokenChanged, signInAnonymously, signOut } from '@firebase/auth'
 import firebase from '@/plugins/firebase'
 import { useStore } from 'vuex'
 import { key } from '@/vuex'
@@ -17,18 +17,21 @@ export default defineComponent({
 
     const firebaseAuth = getAuth(firebase.app)
 
-    onAuthStateChanged(firebaseAuth, async (user) => {
+    const updateLoginState = async (user) => {
       if (user) {
         const token = await user.getIdTokenResult()
 
         const name = await login($q, token.token, axios)
         if (name) {
-          store.commit('login', { uid: user.uid, name })
+          store.commit('login', { uid: user.uid, name, token: token.token })
         }
       } else {
         store.commit('logout')
       }
-    })
+    }
+
+    onAuthStateChanged(firebaseAuth, updateLoginState)
+    onIdTokenChanged(firebaseAuth, updateLoginState)
 
     const logout = () => {
       signOut(firebaseAuth)

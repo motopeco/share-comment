@@ -3,14 +3,17 @@ import { defineComponent, inject, onBeforeMount, onMounted, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { getProducts } from '@/models/product'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
+import { key } from '@/vuex'
 
 export default defineComponent({
   name: 'ProductList',
   setup() {
+    const $store = useStore(key)
     const $router = useRouter()
     const $q = useQuasar()
     const axios: any = inject('axios')
-    const rows = ref<any[]>([])
+    const rows = ref<any[]>($store.state.products)
 
     const kana = 'あかさたなはまやらわ'.split('')
 
@@ -18,6 +21,7 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       await products()
+      $store.commit('setProducts', rows.value)
       console.log(rows.value)
     })
 

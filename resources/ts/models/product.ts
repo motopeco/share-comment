@@ -38,7 +38,7 @@ export function getProductData(
       console.log(`/api/v1/products/${product.id}/comments`)
       const { data: comments } = await axios.get(`/api/v1/products/${product.id}/comments`)
 
-      refTime.value = product.time
+      refTime.value = parseInt(product.time)
       refComments.value = comments
     } catch (e) {
       console.log(e)

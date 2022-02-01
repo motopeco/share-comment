@@ -37,11 +37,21 @@ export default class CommentController {
         return ctx.response.notFound()
       }
 
-      await Comment.createComment(userId, product.id, payload.content, payload.time, trx)
+      const comment = await Comment.createComment(
+        userId,
+        product.id,
+        payload.content,
+        payload.time,
+        trx
+      )
 
       await trx.commit()
+
+      return ctx.response.send(comment)
     } catch (e) {
+      Logger.error(e.messages)
       await trx.rollback()
+      return ctx.response.badRequest()
     }
   }
 }

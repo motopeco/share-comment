@@ -1,5 +1,5 @@
 declare interface ProductComment {
-  i: number
+  id: number
   content: string
   time: number
 }
